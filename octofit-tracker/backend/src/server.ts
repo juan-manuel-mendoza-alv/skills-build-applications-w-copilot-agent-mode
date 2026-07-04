@@ -2,6 +2,19 @@ import express from 'express';
 import './config/database';
 import { Activity, LeaderboardEntry, Team, User, Workout } from './models';
 
+const corsMiddleware = (_req: express.Request, res: express.Response, next: express.NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
+  if (_req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+
+  next();
+};
+
 const getPort = () => process.env.PORT || '8000';
 
 const getApiBaseUrl = () => {
@@ -23,6 +36,7 @@ const app = express();
 const port = Number(process.env.PORT || 8000);
 const host = process.env.HOST || '0.0.0.0';
 
+app.use(corsMiddleware);
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {

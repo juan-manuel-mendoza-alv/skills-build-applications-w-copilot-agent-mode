@@ -1,6 +1,6 @@
 import './App.css'
 import { NavLink, Route, Routes } from 'react-router-dom'
-import { getApiBaseUrl } from './config/api'
+import { getApiBaseUrl, getCodespaceName } from './config/api'
 import Activities from './components/Activities'
 import Leaderboard from './components/Leaderboard'
 import Teams from './components/Teams'
@@ -17,7 +17,7 @@ const navItems = [
 
 function App() {
   const apiBaseUrl = getApiBaseUrl()
-  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const codespaceName = getCodespaceName()
 
   return (
     <main className="container py-4 py-lg-5">

@@ -5,7 +5,7 @@ const getCodespaceNameFromHost = (host = '') => {
   return match?.[1] || '';
 };
 
-const getCodespaceName = () => {
+export const getCodespaceName = () => {
   const envName = import.meta.env.VITE_CODESPACE_NAME?.trim();
 
   if (envName) {
@@ -13,13 +13,36 @@ const getCodespaceName = () => {
   }
 
   if (typeof window !== 'undefined') {
-    return getCodespaceNameFromHost(window.location.hostname);
+    const hostName = window.location.hostname;
+    const derived = getCodespaceNameFromHost(hostName);
+
+    if (derived) {
+      return derived;
+    }
+
+    return window.__OCTOFIT_CODESPACE_NAME || '';
   }
 
   return '';
 };
 
 export const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+
+    if (host.includes('.app.github.dev')) {
+      const currentPort = window.location.port || getPort();
+
+      if (currentPort === '5173') {
+        return `https://${host.replace(/-5173/, `-${getPort()}`)}`;
+      }
+
+      if (currentPort === getPort()) {
+        return `${window.location.protocol}//${window.location.host}`;
+      }
+    }
+  }
+
   const codespaceName = getCodespaceName();
 
   if (codespaceName) {
