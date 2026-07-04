@@ -1,7 +1,23 @@
 import express from 'express';
 import './config/database';
-import { getApiBaseUrl } from './config/api';
 import { Activity, LeaderboardEntry, Team, User, Workout } from './models';
+
+const getPort = () => process.env.PORT || '8000';
+
+const getApiBaseUrl = () => {
+  const codespaceName = process.env.CODESPACE_NAME;
+
+  if (codespaceName) {
+    return `https://${codespaceName}-${getPort()}.app.github.dev`;
+  }
+
+  return `http://localhost:${getPort()}`;
+};
+
+const getApiUrl = (path = '/') => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${getApiBaseUrl()}${normalizedPath}`;
+};
 
 const app = express();
 const port = Number(process.env.PORT || 8000);
