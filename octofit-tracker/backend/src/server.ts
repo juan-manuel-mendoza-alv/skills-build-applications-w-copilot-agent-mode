@@ -5,6 +5,7 @@ import { Activity, LeaderboardEntry, Team, User, Workout } from './models';
 
 const app = express();
 const port = Number(process.env.PORT || 8000);
+const host = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
 
@@ -59,7 +60,7 @@ registerCollectionRoute('/api/activities', () => Activity.find().populate('user'
 registerCollectionRoute('/api/leaderboard', () => LeaderboardEntry.find().populate('user').lean());
 registerCollectionRoute('/api/workouts', () => Workout.find().lean());
 
-app.listen(port, () => {
-  console.log(`OctoFit backend listening on port ${port}`);
+app.listen(port, host, () => {
+  console.log(`OctoFit backend listening on ${host}:${port}`);
   console.log(`API base URL: ${getApiBaseUrl()}`);
 });

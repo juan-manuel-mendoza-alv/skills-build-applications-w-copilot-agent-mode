@@ -9,6 +9,7 @@ const api_1 = require("./config/api");
 const models_1 = require("./models");
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT || 8000);
+const host = process.env.HOST || '0.0.0.0';
 app.use(express_1.default.json());
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', service: 'octofit-backend', apiBaseUrl: (0, api_1.getApiBaseUrl)() });
@@ -59,7 +60,7 @@ registerCollectionRoute('/api/teams', () => models_1.Team.find().populate('capta
 registerCollectionRoute('/api/activities', () => models_1.Activity.find().populate('user').lean());
 registerCollectionRoute('/api/leaderboard', () => models_1.LeaderboardEntry.find().populate('user').lean());
 registerCollectionRoute('/api/workouts', () => models_1.Workout.find().lean());
-app.listen(port, () => {
-    console.log(`OctoFit backend listening on port ${port}`);
+app.listen(port, host, () => {
+    console.log(`OctoFit backend listening on ${host}:${port}`);
     console.log(`API base URL: ${(0, api_1.getApiBaseUrl)()}`);
 });
