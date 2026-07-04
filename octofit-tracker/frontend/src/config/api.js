@@ -22,12 +22,19 @@ export const getCodespaceName = () => {
 export const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const hostName = window.location.hostname;
+    const port = window.location.port;
 
     if (hostName.includes('.app.github.dev')) {
-      const codespaceName = getCodespaceNameFromHost(hostName);
+      if (port === '5173') {
+        const codespaceName = getCodespaceName();
 
-      if (codespaceName) {
-        return `https://${codespaceName}-${getPort()}.app.github.dev`;
+        if (codespaceName) {
+          return `https://${codespaceName}-${getPort()}.app.github.dev`;
+        }
+      }
+
+      if (port === getPort()) {
+        return `${window.location.protocol}//${window.location.host}`;
       }
     }
   }
