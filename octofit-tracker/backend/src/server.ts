@@ -1,17 +1,10 @@
 import express from 'express';
 import './config/database';
 import { getApiBaseUrl } from './config/api';
+import { Activity, LeaderboardEntry, Team, User, Workout } from './models';
 
 const app = express();
 const port = Number(process.env.PORT || 8000);
-
-const resourceEndpoints = [
-  '/api/users',
-  '/api/teams',
-  '/api/activities',
-  '/api/leaderboard',
-  '/api/workouts',
-];
 
 app.use(express.json());
 
@@ -19,23 +12,52 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'octofit-backend', apiBaseUrl: getApiBaseUrl() });
 });
 
-resourceEndpoints.forEach((endpoint) => {
-  app.get(endpoint, (_req, res) => {
-    res.json({ route: endpoint, message: `${endpoint} endpoint is ready` });
+const registerCollectionRoute = async (path: string, handler: () => Promise<unknown>, method: 'get' | 'post' = 'get') => {
+  if (method === 'get') {
+    app.get(path, async (_req, res) => {
+      try {
+        const data = await handler();
+        res.json(data);
+      } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+      }
+    });
+
+    app.get(`${path}/`, async (_req, res) => {
+      try {
+        const data = await handler();
+        res.json(data);
+      } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+      }
+    });
+    return;
+  }
+
+  app.post(path, async (_req, res) => {
+    try {
+      const data = await handler();
+      res.status(201).json(data);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
   });
 
-  app.get(`${endpoint}/`, (_req, res) => {
-    res.json({ route: `${endpoint}/`, message: `${endpoint}/ endpoint is ready` });
+  app.post(`${path}/`, async (_req, res) => {
+    try {
+      const data = await handler();
+      res.status(201).json(data);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
   });
+};
 
-  app.post(endpoint, (_req, res) => {
-    res.status(201).json({ route: endpoint, message: `${endpoint} endpoint is ready` });
-  });
-
-  app.post(`${endpoint}/`, (_req, res) => {
-    res.status(201).json({ route: `${endpoint}/`, message: `${endpoint}/ endpoint is ready` });
-  });
-});
+registerCollectionRoute('/api/users', () => User.find().populate('team').lean());
+registerCollectionRoute('/api/teams', () => Team.find().populate('captain').populate('members').lean());
+registerCollectionRoute('/api/activities', () => Activity.find().populate('user').lean());
+registerCollectionRoute('/api/leaderboard', () => LeaderboardEntry.find().populate('user').lean());
+registerCollectionRoute('/api/workouts', () => Workout.find().lean());
 
 app.listen(port, () => {
   console.log(`OctoFit backend listening on port ${port}`);
