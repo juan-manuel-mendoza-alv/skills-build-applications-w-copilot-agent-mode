@@ -1,6 +1,9 @@
 import './App.css'
+import { getApiBaseUrl } from './config/api'
 
 function App() {
+  const apiBaseUrl = getApiBaseUrl()
+  
   return (
     <main className="container py-5">
       <div className="row justify-content-center">
@@ -16,9 +19,12 @@ function App() {
                 <a className="btn btn-primary btn-lg" href="https://react.dev/" target="_blank" rel="noreferrer">
                   Explore React
                 </a>
-                <a className="btn btn-outline-secondary btn-lg" href="http://localhost:8000" target="_blank" rel="noreferrer">
+                <a className="btn btn-outline-secondary btn-lg" href={apiBaseUrl} target="_blank" rel="noreferrer">
                   Open API
                 </a>
+              </div>
+              <div className="mt-4 text-muted small">
+                <p>API Base URL: <code>{apiBaseUrl}</code></p>
               </div>
             </div>
           </div>
